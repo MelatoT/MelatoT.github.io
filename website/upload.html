@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full height */
+            margin: 0; /* Remove default margin */
+            background-image: url('backround.gif'); /* Add your GIF background here */
+            background-size: cover; /* Cover the entire background */
+            background-position: center; /* Center the background */
+            background-repeat: no-repeat; /* Prevent tiling */
+        }
+        .upload-container {
+            background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent white */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1; /* Ensure it's above the background */
+        }
+        input[type="file"], input[type="text"] {
+            margin: 10px 0;
+            width: calc(100% - 20px);
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: block;          /* Ensure the image is treated as a block element */
+            margin-left: auto;      /* Center the image horizontally */
+            margin-right: auto;     /* Center the image horizontally */
+        }
+    </style>
+</head>
+<body>
+    <div class="upload-container">
+        <form id="uploadForm" method="POST" enctype="multipart/form-data" onsubmit="return prepareSubmit();">
+            <input type="text" id="serverIp" placeholder="Enter Flask Server IP" required>
+            <input type="file" name="image" accept="image/*" required onchange="previewImage(event)">
+            <button type="submit">Upload Image</button>
+        </form>
+        <img id="uploadedImage" src="" alt="Uploaded Image" style="display: none;">
+    </div>
+
+    <script>
+        function prepareSubmit() {
+            const ip = document.getElementById('serverIp').value;
+            const form = document.getElementById('uploadForm');
+            form.action = `http://${ip}:5000/upload`;
+            return true; // Allow form submission
+        }
+
+        // Function to preview the uploaded image
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const imgElement = document.getElementById('uploadedImage');
+                imgElement.src = e.target.result; // Set the image source to the file's data URL
+                imgElement.style.display = 'block'; // Show the image
+            }
+
+            if (file) {
+                reader.readAsDataURL(file); // Convert the file to a data URL
+            }
+        }
+
+        // Display the uploaded image after successful upload
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const predictedClass = urlParams.get('predicted_class');
+        const imageUrl = '/static/uploaded_image.jpg'; // Update this if necessary
+
+        if (predictedClass) {
+            document.getElementById('uploadedImage').src = imageUrl;
+            document.getElementById('uploadedImage').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
